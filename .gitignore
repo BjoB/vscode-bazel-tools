@@ -1,6 +1,7 @@
 out
 dist
 node_modules
+external
 .vscode-test/
 *.vsix
 bazel-*

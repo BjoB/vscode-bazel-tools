@@ -1,0 +1,75 @@
+{
+  "name": "vscode-bazel-tools",
+  "displayName": "vscode-bazel-tools",
+  "description": "IntelliSense support for C/C++ targets built with bazel.",
+  "version": "0.0.1",
+  "publisher": "bjob",
+  "icon": "images/bazel_tools_icon.png",
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bjob/vscode-bazel-tools.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.54.0"
+  },
+  "categories": [
+    "Other",
+    "Testing"
+  ],
+  "keywords": [
+    "bazel",
+    "C++",
+    "IntelliSense"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscode-bazel-tools.generateCompileCommands",
+        "title": "bazel-tools: Generate compile commands"
+      }
+    ],
+    "configuration": {
+      "title": "bazel-tools",
+      "properties": {
+        "bazeltools.customCompileCommandsTarget": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "Specifies a custom bazel target (label) to generate the compile commands."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.54.0",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
+    "@vscode/test-electron": "^2.3.4",
+    "eslint": "^8.47.0",
+    "glob": "^10.3.3",
+    "mocha": "^10.2.0",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@types/fs-extra": "^11.0.2",
+    "fs-extra": "^11.1.1",
+    "tslog": "^4.9.2",
+    "util": "^0.12.5"
+  }
+}
