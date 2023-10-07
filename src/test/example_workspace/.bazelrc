@@ -1,0 +1,5 @@
+build --symlink_prefix=../bazel-
+run --symlink_prefix=../bazel-
+test --symlink_prefix=../bazel-
+
+build --cxxopt='-std=c++17' --host_cxxopt='-std=c++17' --conlyopt='-std=c11'

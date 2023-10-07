@@ -1,0 +1,3 @@
+{
+    //"bazeltools.customCompileCommandsTarget": "//main:compile_commands_refresh",
+}
