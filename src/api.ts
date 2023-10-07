@@ -38,13 +38,21 @@ export async function generateCompileCommands(directory: string, customCompileCo
         if (fse.existsSync(compileCommandsFile)) {
             fs.unlinkSync(compileCommandsFile);
         }
+        
+        let restoreRcFile = false;
+        let oldRcFileContent = "";
+        await replacePattern(".*--symlink_prefix.*\\n", "", bazelRcFile).then(([oldData, modifiedData]) => {
+            oldRcFileContent = oldData;
+            fs.writeFileSync(bazelRcFile, modifiedData, 'utf8');
+            restoreRcFile = (oldData !== modifiedData);
+        });
 
-        // TODOs: 
-        // - replacePattern should return oldData and newData -> make sure that old state is restored if "bazel run .." fails
-        let cb = async function generateCompileCmds(): Promise<CommandOutput> {
-            return runCommand("bazel", ["run", compileCommandsTarget], directory);
-        };
-        await replacePattern(".*--symlink_prefix.*\\n", "", bazelRcFile, cb, true);
+        await runCommand("bazel", ["run", compileCommandsTarget], directory).finally(() => {
+            logger.info("Restoring .bazelrc file...");
+            if (restoreRcFile) {
+                fs.writeFileSync(bazelRcFile, oldRcFileContent, 'utf8');
+            }
+        });
 
         await replacePattern("bazel-out", `${symlinkPrefix}out`, compileCommandsFile);
     }
