@@ -5,9 +5,9 @@ import * as api from './api';
 let compileCommandsGenerator: vscode.Disposable | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
-	compileCommandsGenerator = vscode.commands.registerCommand('vscode-bazel-tools.generateCompileCommands', async () => {
+	compileCommandsGenerator = vscode.commands.registerCommand('vsc-bazel-tools.generateCompileCommands', async () => {
 		let currentlyOpenTabFileDir = path.dirname(vscode.window.activeTextEditor?.document.uri.fsPath!);
-		let customCompileCommandsTarget = vscode.workspace.getConfiguration("bazeltools");
+		let customCompileCommandsTarget = vscode.workspace.getConfiguration("vsc-bazel-tools");
 
 		await api.generateCompileCommands(currentlyOpenTabFileDir, customCompileCommandsTarget.get("customCompileCommandsTarget")).then(() => {
 			vscode.window.showInformationMessage(`Successfully generated compile commands!`);

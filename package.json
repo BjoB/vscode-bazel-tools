@@ -1,6 +1,6 @@
 {
-  "name": "vscode-bazel-tools",
-  "displayName": "vscode-bazel-tools",
+  "name": "vsc-bazel-tools",
+  "displayName": "VSC Bazel Tools",
   "description": "IntelliSense support for C/C++ targets built with bazel.",
   "version": "0.1.0",
   "publisher": "bjob",
@@ -28,14 +28,14 @@
   "contributes": {
     "commands": [
       {
-        "command": "vscode-bazel-tools.generateCompileCommands",
-        "title": "bazel-tools: Generate compile commands"
+        "command": "vsc-bazel-tools.generateCompileCommands",
+        "title": "vsc-bazel-tools: Generate compile commands"
       }
     ],
     "configuration": {
-      "title": "bazel-tools",
+      "title": "vsc-bazel-tools",
       "properties": {
-        "bazeltools.customCompileCommandsTarget": {
+        "vsc-bazel-tools.customCompileCommandsTarget": {
           "type": [
             "string",
             "null"

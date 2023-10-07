@@ -1,11 +1,10 @@
-import { runCommand, CommandOutput } from './commands';
+import { runCommand } from './commands';
 import * as fs from 'fs';
 import * as path from 'path';
 import { logger } from './logging';
 import { replacePattern } from './file_manipulation';
 import { glob } from 'glob';
 import * as fse from 'fs-extra';
-import { error } from 'console';
 
 export async function generateCompileCommands(directory: string, customCompileCommandsTarget: string | undefined) {
     const bazelWorkspaceOutput = await runCommand("bazel", ["info", "workspace"], directory);

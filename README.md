@@ -1,4 +1,4 @@
-# vscode-bazel-tools
+# VSC Bazel Tools
 
 This extension adds some utility to ease the work with C/C++ targets in a bazel workspace and allows to work efficiently with IntelliSense.
 
@@ -13,7 +13,7 @@ This extension adds some utility to ease the work with C/C++ targets in a bazel 
 
 ## Usage
 
-Having a file from your bazel workspace opened, just enter `bazel-tools` from the command palette (`Strg+Shift+P`). 
+Having a file from your bazel workspace opened, just enter `vsc-bazel-tools` from the command palette (`Strg+Shift+P`). 
 Via `Generate compile commands` the `compile_commands.json` file will be generated. 
 
 In large repositories you might want to limit the number of targets to generate compile commands for with 
