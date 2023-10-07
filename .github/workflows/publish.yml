@@ -1,15 +1,20 @@
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  workflow_dispatch
+    inputs:
+      version:
+        description: 'Tag on master to publish (vX.Y.Z)'
+        required: true
+         type: string
 
 name: Publish extension
 jobs:
-  deploy:
+  publish:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ inputs.version }}
       - uses: actions/setup-node@v1
         with:
           node-version: latest
