@@ -1,10 +1,10 @@
 on:
-  workflow_dispatch
+  workflow_dispatch:
     inputs:
       version:
         description: 'Tag on master to publish (vX.Y.Z)'
         required: true
-         type: string
+        type: string
 
 name: Publish extension
 jobs:
