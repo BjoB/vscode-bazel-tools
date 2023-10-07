@@ -2,7 +2,7 @@
   "name": "vscode-bazel-tools",
   "displayName": "vscode-bazel-tools",
   "description": "IntelliSense support for C/C++ targets built with bazel.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "bjob",
   "icon": "images/bazel_tools_icon.png",
   "readme": "README.md",
