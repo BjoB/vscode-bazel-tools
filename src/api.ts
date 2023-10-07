@@ -43,7 +43,6 @@ export async function generateCompileCommands(directory: string, customCompileCo
         let oldRcFileContent = "";
         await replacePattern(".*--symlink_prefix.*\\n", "", bazelRcFile).then(([oldData, modifiedData]) => {
             oldRcFileContent = oldData;
-            fs.writeFileSync(bazelRcFile, modifiedData, 'utf8');
             restoreRcFile = (oldData !== modifiedData);
         });
 
@@ -54,11 +53,15 @@ export async function generateCompileCommands(directory: string, customCompileCo
             }
         });
 
-        await replacePattern("bazel-out", `${symlinkPrefix}out`, compileCommandsFile);
+        await replacePattern("bazel-out", `${symlinkPrefix}out`, compileCommandsFile).then(() => {
+            logger.info(`Replaced 'bazel-out' in compile_commands.json with '${symlinkPrefix}out'`);
+        });
     }
 
     // move "external" symlink out of WORKSPACE
-    await replacePattern("external", "../external", compileCommandsFile);
+    await replacePattern("external", "../external", compileCommandsFile).then(() => {
+        logger.info(`Replaced 'external' in compile_commands.json with '../external'`);
+    });
     const destinationExternal = path.join(bazelWorkspace, "/../external");
     if (fse.existsSync(destinationExternal)) {
         fse.removeSync(destinationExternal);
