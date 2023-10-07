@@ -1,10 +1,10 @@
 # vscode-bazel-tools
 
-This extension adds some utility to ease the work with C/C++ targets in a bazel workspace and allow to work efficiently with IntelliSense.
+This extension adds some utility to ease the work with C/C++ targets in a bazel workspace and allows to work efficiently with IntelliSense.
 
 ## Features
 
-- Generates a `compile_commands.json` for an existing bazel workspace via command, based on the [bazel-compile-commands-extractor](https://github.com/hedronvision/bazel-compile-commands-extractor) tool
+- Generates a `compile_commands.json` for an existing bazel workspace via command, based on the [bazel-compile-commands-extractor](https://github.com/hedronvision/bazel-compile-commands-extractor) tool.
 
 ## Requirements
 
