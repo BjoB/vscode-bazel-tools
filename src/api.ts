@@ -9,6 +9,9 @@ import { error } from 'console';
 
 export async function generateCompileCommands(directory: string, customCompileCommandsTarget: string | undefined) {
     const bazelWorkspaceOutput = await runCommand("bazel", ["info", "workspace"], directory);
+    if (bazelWorkspaceOutput.error) {
+        throw bazelWorkspaceOutput.error;
+    }
     const bazelWorkspace = bazelWorkspaceOutput.stdout.join();
     const bazelRcFile = path.join(bazelWorkspace, "/.bazelrc");
 
