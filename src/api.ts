@@ -48,6 +48,7 @@ export async function generateCompileCommands(directory: string, customCompileCo
             restoreRcFile = (oldData !== modifiedData);
         });
 
+        logger.info("Generating compile commands...");
         await runCommand("bazel", ["run", compileCommandsTarget], directory).finally(() => {
             logger.info("Restoring .bazelrc file...");
             if (restoreRcFile) {

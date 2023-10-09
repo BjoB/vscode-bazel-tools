@@ -18,6 +18,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		let customCompileCommandsTarget = vscode.workspace.getConfiguration("vsc-bazel-tools");
 
 		await api.generateCompileCommands(currentlyOpenTabFileDir, customCompileCommandsTarget.get("customCompileCommandsTarget")).then(() => {
+			logger.info(`Successfully generated compile commands!`);
 			vscode.window.showInformationMessage(`Successfully generated compile commands!`);
 		}
 		).catch(
