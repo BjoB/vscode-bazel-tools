@@ -22,3 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Use webpack to bundle extension.
+
+## [0.4.0] 2023-10-09
+
+### Added
+
+- Log messages are now forwarded to extension output channel.
+
+### Fixed
+
+- Only touch 'external' paths in compile_commands.json with certain prefixes.
