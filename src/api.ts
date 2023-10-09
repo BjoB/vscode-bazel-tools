@@ -62,9 +62,12 @@ export async function generateCompileCommands(directory: string, customCompileCo
     }
 
     // move "external" symlink out of WORKSPACE
-    await replacePattern("external", "../external", compileCommandsFile).then(() => {
-        logger.info(`Replaced 'external' in compile_commands.json with '../external'`);
+    ["\"", "I"].forEach(async prefix => {
+        await replacePattern(`${prefix}external`, `${prefix}../external`, compileCommandsFile).then(() => {
+            logger.info(`Replaced '${prefix}external' in compile_commands.json with '${prefix}../external'`);
+        });        
     });
+
     const destinationExternal = path.join(bazelWorkspace, "/../external");
     if (fse.existsSync(destinationExternal)) {
         fse.removeSync(destinationExternal);
