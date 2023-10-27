@@ -2,7 +2,7 @@
   "name": "vsc-bazel-tools",
   "displayName": "VSC Bazel Tools",
   "description": "IntelliSense support for C/C++ targets built with bazel.",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "publisher": "bjob",
   "icon": "images/bazel_tools_icon.png",
   "readme": "README.md",

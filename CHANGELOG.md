@@ -32,3 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Only touch 'external' paths in compile_commands.json with certain prefixes.
+
+## [0.5.0] 2023-10-27
+
+### Added
+- Use progress notifications in addition to extension output
