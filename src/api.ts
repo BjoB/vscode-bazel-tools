@@ -40,7 +40,7 @@ export async function generateCompileCommands(directory: string, customCompileCo
         if (fse.existsSync(compileCommandsFile)) {
             fs.unlinkSync(compileCommandsFile);
         }
-        
+
         let restoreRcFile = false;
         let oldRcFileContent = "";
         await replacePattern(".*--symlink_prefix.*\\n", "", bazelRcFile).then(([oldData, modifiedData]) => {
@@ -50,8 +50,8 @@ export async function generateCompileCommands(directory: string, customCompileCo
 
         logger.info("Generating compile commands...");
         await runCommand("bazel", ["run", compileCommandsTarget], directory).finally(() => {
-            logger.info("Restoring .bazelrc file...");
             if (restoreRcFile) {
+                logger.info("Restoring .bazelrc file...");
                 fs.writeFileSync(bazelRcFile, oldRcFileContent, 'utf8');
             }
         });
@@ -59,20 +59,26 @@ export async function generateCompileCommands(directory: string, customCompileCo
         await replacePattern("bazel-out", `${symlinkPrefix}out`, compileCommandsFile).then(() => {
             logger.info(`Replaced 'bazel-out' in compile_commands.json with '${symlinkPrefix}out'`);
         });
+    } else {
+        logger.info("Generating compile commands...");
+        await runCommand("bazel", ["run", compileCommandsTarget], directory);
     }
 
     // move "external" symlink out of WORKSPACE
     ["\"", "I"].forEach(async prefix => {
         await replacePattern(`${prefix}external`, `${prefix}../external`, compileCommandsFile).then(() => {
             logger.info(`Replaced '${prefix}external' in compile_commands.json with '${prefix}../external'`);
-        });        
+        });
     });
 
     const destinationExternal = path.join(bazelWorkspace, "/../external");
     if (fse.existsSync(destinationExternal)) {
         fse.removeSync(destinationExternal);
     }
-    fse.moveSync(path.join(bazelWorkspace, "external"), destinationExternal);
+    const externalDir = path.join(bazelWorkspace, "external");
+    if (fse.existsSync(externalDir)) {
+        fse.moveSync(externalDir, destinationExternal);
+    }
 
     // rm generated bazel-* symlinks aside WORKSPACE
     if (symlinkMatches) {
