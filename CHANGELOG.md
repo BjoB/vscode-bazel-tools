@@ -36,4 +36,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.0] 2023-10-27
 
 ### Added
+
 - Use progress notifications in addition to extension output
+
+## [0.6.0] 2023-11-05
+
+### Added
+
+- Support official vscode testing API to discover, run, debug and anlyze `cc_test` targets via test explorer UI
+- Additional setting to switch on/off testing feature
+
+### Fixed
+
+- compile_commands.json generation didn't work properly in case no symlinks for bazel-* directories were used
