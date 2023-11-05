@@ -4,4 +4,5 @@
     },
     // "vsc-bazel-tools.customCompileCommandsTarget": "//main:refresh_compile_commands",
     // "vsc-bazel-tools.activateTesting": true,
+    // "vsc-bazel-tools.testDiscoverLabel": "//lib/...",
 }
