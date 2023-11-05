@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support official vscode testing API to discover, run, debug and anlyze `cc_test` targets via test explorer UI
 - Additional setting to switch on/off testing feature
+- Additional setting to reduce the search space for large projects with many build targets
 
 ### Fixed
 

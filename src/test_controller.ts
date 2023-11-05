@@ -33,6 +33,7 @@ export class Utils {
 
     constructor(
         private readonly controller: vscode.TestController,
+        private readonly testDiscoverLabel: string,
     ) { }
 
     public async discoverAllTestsInWorkspace() {
@@ -51,8 +52,7 @@ export class Utils {
                     logger.error(`No WORKSPACE file found in ${this.workspaceDirPath}`);
                 });
 
-                const bazelTestTargetsQuery = await runCommand("bazel", ["query", "kind(\"cc_test\", //...)"], this.workspaceDirPath);
-                // TODO: get search dir/label from UI instead of using global //...?
+                const bazelTestTargetsQuery = await runCommand("bazel", ["query", `kind(\"cc_test\", ${this.testDiscoverLabel})`], this.workspaceDirPath);
 
                 if (bazelTestTargetsQuery.error) {
                     throw new Error(`bazel query failed:\n ${bazelTestTargetsQuery.error.message}`);

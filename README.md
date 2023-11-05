@@ -31,9 +31,10 @@ If the `activateTesting` setting is set to true (default), the extension tries t
 
 ![test_explorer_example](images/test_explorer_example.png)
 
-This might take a while, depending on the size of your C++ project and the number of existing tests. In case of unexpected failures, check the extension output for error logs.
+Depending on the size of your C++ project, the test discovery process might take a while. You can reduce the search space by the extension setting `testDiscoverLabel`. In case of unexpected failures, check the extension output for error logs.
 
 ## Extension Settings
 
 * `vsc-bazel-tools.customCompileCommandsTarget`: Specifies a custom bazel target (label) to generate the compile commands.
 * `vsc-bazel-tools.activateTesting`: Discover and publish tests via test explorer UI.
+* `vsc-bazel-tools.testDiscoverLabel`: Bazel label for test discovery (e.g. `//my/package/...`).

@@ -52,6 +52,14 @@
           ],
           "default": true,
           "description": "Discover tests in test explorer UI."
+        },
+        "vsc-bazel-tools.testDiscoverLabel": {
+          "type": [
+            "string",
+            "//..."
+          ],
+          "default": "//...",
+          "description": "This label will be used to search for tests. Defaults to workspace search (//...)"
         }
       }
     }

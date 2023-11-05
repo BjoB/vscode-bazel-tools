@@ -9,12 +9,14 @@ let extensionOutputChannel: vscode.OutputChannel | undefined;
 let compileCommandsGenerator: vscode.Disposable | undefined;
 let bazelTestCtrl: vscode.TestController | undefined;
 
+const bazelTools = "vsc-bazel-tools";
 const activeTestingSettingName = "activateTesting";
+const testDiscoverLabelSettingName = "testDiscoverLabel";
 const activeTestingSettingDefault = true;
 let testingActivated = false;
 
 export async function activate(context: vscode.ExtensionContext) {
-	extensionOutputChannel = vscode.window.createOutputChannel("vsc-bazel-tools");
+	extensionOutputChannel = vscode.window.createOutputChannel(bazelTools);
 	extensionOutputChannel.show();
 	logger.attachTransport((logObj) => {
 		extensionOutputChannel.appendLine(logObj['0'].toString());
@@ -31,7 +33,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	const bazelWorkspaceDir = path.dirname(foundWorkspaceFiles[0]);
 
 	logger.info("Retrieving configuration.");
-	const config = vscode.workspace.getConfiguration("vsc-bazel-tools");
+	const config = vscode.workspace.getConfiguration(bazelTools);
 
 	compileCommandsGenerator = vscode.commands.registerCommand('vsc-bazel-tools.generateCompileCommands', async () => {
 		vscode.window.withProgress({
@@ -69,7 +71,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	const toggleTestingFeature = async () => {
 		if (!testingActivated) {
 			bazelTestCtrl = vscode.tests.createTestController('bazelTestController', 'Unit tests');
-			const utils = new Utils(bazelTestCtrl);
+			const utils = new Utils(bazelTestCtrl, vscode.workspace.getConfiguration(bazelTools).get(testDiscoverLabelSettingName));
 
 			bazelTestCtrl.resolveHandler = async test => {
 				if (!test) {
@@ -116,14 +118,20 @@ export async function activate(context: vscode.ExtensionContext) {
 	};
 
 	// activate/deactivate testing feature initially
-	if (config.get(activeTestingSettingName, activeTestingSettingDefault)) {
+	if (vscode.workspace.getConfiguration(bazelTools).get(activeTestingSettingName, activeTestingSettingDefault)) {
 		await toggleTestingFeature();
 	}
 
 	// activate/deactivate testing feature on config change
 	vscode.workspace.onDidChangeConfiguration(async e => {
-		if (e.affectsConfiguration(`vsc-bazel-tools.${activeTestingSettingName}`) &&
-			config.get(activeTestingSettingName, activeTestingSettingDefault) === true) {
+		const activeTestingFlagChanged = e.affectsConfiguration(`vsc-bazel-tools.${activeTestingSettingName}`);
+		const testDiscoverLabelChanged = e.affectsConfiguration(`vsc-bazel-tools.${testDiscoverLabelSettingName}`);
+		const activeTestingSetting = vscode.workspace.getConfiguration(bazelTools).get(activeTestingSettingName, activeTestingSettingDefault);
+		if (activeTestingFlagChanged && activeTestingSetting === true || testDiscoverLabelChanged) {
+			if (testDiscoverLabelChanged) {
+				bazelTestCtrl?.dispose();
+				testingActivated = false; // trigger refresh
+			}
 			await toggleTestingFeature();
 		}
 	});
@@ -132,4 +140,5 @@ export async function activate(context: vscode.ExtensionContext) {
 export function deactivate() {
 	compileCommandsGenerator?.dispose();
 	bazelTestCtrl?.dispose();
+	testingActivated = false;
 }
