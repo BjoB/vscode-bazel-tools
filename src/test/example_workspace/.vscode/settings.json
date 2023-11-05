@@ -1,3 +1,7 @@
 {
-    //"vsc-bazel-tools.customCompileCommandsTarget": "//main:compile_commands_refresh",
+    "files.associations": {
+        "iostream": "cpp"
+    },
+    // "vsc-bazel-tools.customCompileCommandsTarget": "//main:refresh_compile_commands",
+    // "vsc-bazel-tools.activateTesting": true,
 }
