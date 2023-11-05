@@ -24,7 +24,7 @@
     "IntelliSense"
   ],
   "activationEvents": [
-    "workspaceContains:WORKSPACE*"
+    "workspaceContains:**/WORKSPACE*"
   ],
   "main": "./dist/extension",
   "contributes": {

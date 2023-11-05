@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as api from './api';
 import { logger } from './logging';
 import { Utils } from './test_controller';
+import { glob } from 'glob';
 
 let extensionOutputChannel: vscode.OutputChannel | undefined;
 let compileCommandsGenerator: vscode.Disposable | undefined;
@@ -19,7 +20,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		extensionOutputChannel.appendLine(logObj['0'].toString());
 	});
 
-	let currentlyOpenTabFileDir = path.dirname(vscode.window.activeTextEditor?.document.uri.fsPath!);
+	const mainVsCodeWorkspaceDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
+	const foundWorkspaceFiles = await glob("**/WORKSPACE*", { nodir: true, absolute: true, cwd: mainVsCodeWorkspaceDir });
+	if (!foundWorkspaceFiles) {
+		vscode.window.showErrorMessage("No valid WORKSPACE file found!");
+		return;
+	}
+
+	// for now, simply take the first match
+	const bazelWorkspaceDir = path.dirname(foundWorkspaceFiles[0]);
 
 	logger.info("Retrieving configuration.");
 	const config = vscode.workspace.getConfiguration("vsc-bazel-tools");
@@ -32,7 +41,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		}, async (progress) => {
 			progress.report({ message: "Generating compile commands..." });
 
-			await api.generateCompileCommands(currentlyOpenTabFileDir, config.get("customCompileCommandsTarget")).then(() => {
+			await api.generateCompileCommands(bazelWorkspaceDir, config.get("customCompileCommandsTarget")).then(() => {
 				logger.info(`Successfully generated compile commands!`);
 
 				progress.report({

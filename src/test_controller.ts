@@ -4,6 +4,7 @@ import * as path from 'path';
 import { parseTest } from './test_parser';
 import { runCommand } from './commands';
 import { logger } from './logging';
+import { glob } from 'glob';
 
 const textDecoder = new TextDecoder('utf-8');
 
@@ -41,9 +42,16 @@ export class Utils {
 
         return Promise.all(
             vscode.workspace.workspaceFolders.map(async workspaceFolder => {
-                const workspaceDirPath = workspaceFolder.uri.fsPath;
-                this.workspaceDirPath = workspaceDirPath;
-                const bazelTestTargetsQuery = await runCommand("bazel", ["query", "kind(\"cc_test\", //...)"], workspaceDirPath);
+                this.workspaceDirPath = workspaceFolder.uri.fsPath;
+
+                await glob("**/WORKSPACE*", { nodir: true, absolute: true, cwd: this.workspaceDirPath }).then((workspaceFiles) => {
+                    this.workspaceDirPath = path.dirname(workspaceFiles[0]);
+                    logger.info(`WORKSPACE file found in: ${this.workspaceDirPath}`);
+                }).catch(() => {
+                    logger.error(`No WORKSPACE file found in ${this.workspaceDirPath}`);
+                });
+
+                const bazelTestTargetsQuery = await runCommand("bazel", ["query", "kind(\"cc_test\", //...)"], this.workspaceDirPath);
                 // TODO: get search dir/label from UI instead of using global //...?
 
                 if (bazelTestTargetsQuery.error) {
@@ -53,7 +61,7 @@ export class Utils {
                 const bazelTestTargets = bazelTestTargetsQuery.stdout;
 
                 for (const testTarget of bazelTestTargets) {
-                    const bazelSrcsQuery = await runCommand("bazel", ["query", `labels(srcs, ${testTarget})`, "--output=location"], workspaceDirPath);
+                    const bazelSrcsQuery = await runCommand("bazel", ["query", `labels(srcs, ${testTarget})`, "--output=location"], this.workspaceDirPath);
                     if (bazelSrcsQuery.error) {
                         throw new Error(`bazel query failed:\n ${bazelSrcsQuery.error.message}`);
                     }
