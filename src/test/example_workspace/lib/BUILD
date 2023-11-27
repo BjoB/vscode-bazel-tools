@@ -10,7 +10,7 @@ cc_library(
 
 cc_test(
     name = "test_bar",
-    srcs = ["test_bar.cpp"],
+    srcs = ["a.h", "test_bar.cpp"],
     deps = [
         ":bar",
         "@com_google_googletest//:gtest_main",
