@@ -50,3 +50,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - compile_commands.json generation didn't work properly in case no symlinks for bazel-* directories were used
+
+## [0.6.1] 2023-11-27
+
+### Fixed
+
+Explicitly assume that a cc_test label name matches the main cpp test file to overcome wrong associations in case of additional source files
