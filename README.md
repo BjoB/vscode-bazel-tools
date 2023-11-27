@@ -1,5 +1,7 @@
 # VSC Bazel Tools
 
+[![Publish extension](https://github.com/BjoB/vscode-bazel-tools/actions/workflows/publish.yml/badge.svg)](https://github.com/BjoB/vscode-bazel-tools/actions/workflows/publish.yml)
+
 This extension adds some utility to ease the work with C/C++ targets in a bazel workspace and allows to work efficiently with IntelliSense.
 
 ## Features
