@@ -65,8 +65,13 @@ export class Utils {
                     if (bazelSrcsQuery.error) {
                         throw new Error(`bazel query failed:\n ${bazelSrcsQuery.error.message}`);
                     }
-                    const srcFileLocation = bazelSrcsQuery.stdout[0]; // TODO: num. files > 1 possible?
-                    const srcFileUri = vscode.Uri.file(srcFileLocation.match(/^(.*):1:1:.*/)[1]);
+                    const bazelSrcRe = new RegExp(`.*${testTarget}.*`); // assume main source file = test label + file ext.
+                    const srcFileUriMatches = bazelSrcsQuery.stdout.filter(item => item.match(bazelSrcRe));
+                    if (!srcFileUriMatches) {
+                        logger.error(`No valid test src file found in ${bazelSrcsQuery.stdout}`);
+                        continue;
+                    }
+                    const srcFileUri = vscode.Uri.file(srcFileUriMatches[0].match(/^(.*):1:1:.*/)[1]);
                     const testItem = this.getOrCreateFile(srcFileUri);
                     bazelTestLabels.set(testItem, testTarget);
 
