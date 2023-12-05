@@ -13,6 +13,7 @@ export async function generateCompileCommands(directory: string, customCompileCo
     }
     const bazelWorkspace = bazelWorkspaceOutput.stdout.join();
     const bazelRcFile = path.join(bazelWorkspace, "/.bazelrc");
+    logger.info(`Expected .bazelrc file: ${bazelRcFile}`);
 
     // retrieve all bazel targets below subdir
     // const bazelTargetsOutput = await runCommand("bazel", ["query", "...:all"], directory);
@@ -32,7 +33,7 @@ export async function generateCompileCommands(directory: string, customCompileCo
     const compileCommandsFile = path.join(bazelWorkspace, "compile_commands.json");
 
     // symlink_prefix is not supported by hedron_compile_commands, so we need to work around it:
-    let bazelRcData = fs.readFileSync(bazelRcFile).toString();
+    const bazelRcData = fs.readFileSync(bazelRcFile).toString();
     const symlinkMatches = bazelRcData.match(/.*--symlink_prefix=(.+)/);
     if (symlinkMatches) {
         const [, symlinkPrefix] = symlinkMatches;
@@ -69,6 +70,11 @@ export async function generateCompileCommands(directory: string, customCompileCo
         await replacePattern(`${prefix}external`, `${prefix}../external`, compileCommandsFile).then(() => {
             logger.info(`Replaced '${prefix}external' in compile_commands.json with '${prefix}../external'`);
         });
+    });
+
+    // clangd workaround, "-isystem" included headers are not properly detected by the language server
+    await replacePattern("-isystem", "-I", compileCommandsFile).then(() => {
+        logger.info(`Replaced '-isystem' in compile_commands.json with '-I'`);
     });
 
     const destinationExternal = path.join(bazelWorkspace, "/../external");
