@@ -56,3 +56,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 Explicitly assume that a cc_test label name matches the main cpp test file to overcome wrong associations in case of additional source files
+
+## [0.6.2] 2023-12-05
+
+### Fixed
+
+clangd seems to have problems to resolve "isystem" added includes placed in the compile commands file, when using gcc to compile. A replacement with normal includes works.
