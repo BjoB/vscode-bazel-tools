@@ -60,7 +60,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			return new Promise<void>(resolve => {
 				setTimeout(() => {
 					resolve();
-				}, 3000);
+				}, 1000);
 			});
 		});
 	});
