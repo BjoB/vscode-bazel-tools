@@ -36,6 +36,10 @@ export class Utils {
         private readonly testDiscoverLabel: string,
     ) { }
 
+    public static isCppTestFile(file: vscode.Uri): boolean {
+        return file.path.endsWith('.cpp') || file.path.endsWith('.cc');
+    }
+
     public async discoverAllTestsInWorkspace() {
         if (!vscode.workspace.workspaceFolders) {
             return []; // handle the case of no open folders
@@ -65,18 +69,15 @@ export class Utils {
                     if (bazelSrcsQuery.error) {
                         throw new Error(`bazel query failed:\n ${bazelSrcsQuery.error.message}`);
                     }
-                    const bazelSrcRe = new RegExp(`.*${testTarget}.*`); // assume main source file = test label + file ext.
-                    const srcFileUriMatches = bazelSrcsQuery.stdout.filter(item => item.match(bazelSrcRe));
-                    if (!srcFileUriMatches) {
-                        logger.error(`No valid test src file found in ${bazelSrcsQuery.stdout}`);
-                        continue;
+                    for (const bazelSrc of bazelSrcsQuery.stdout) {
+                        const srcFileUri = vscode.Uri.file(bazelSrc.match(/^(.*):1:1:.*/)[1]);
+                        if (!Utils.isCppTestFile(srcFileUri)) {
+                            continue;
+                        }
+                        const testItem = this.getOrCreateFile(srcFileUri);
+                        bazelTestLabels.set(testItem, testTarget);
+                        await this.updateFromDisk(testItem);
                     }
-                    const srcFileUri = vscode.Uri.file(srcFileUriMatches[0].match(/^(.*):1:1:.*/)[1]);
-                    const testItem = this.getOrCreateFile(srcFileUri);
-                    bazelTestLabels.set(testItem, testTarget);
-
-                    await this.updateFromDisk(testItem);
-
                 }
 
                 // const pattern = new vscode.RelativePattern(workspaceFolder, '**/*.cpp');
@@ -96,12 +97,13 @@ export class Utils {
     }
 
     getOrCreateFile(uri: vscode.Uri) {
-        const existing = this.controller.items.get(uri.toString());
+        const uniqueUri = uri.toString().toLowerCase(); // workaround to unify paths from different sources, e.g. bazel query yields lowercase src paths
+        const existing = this.controller.items.get(uniqueUri);
         if (existing) {
             return existing;
         }
 
-        const file = this.controller.createTestItem(uri.toString(), uri.path.split('/').pop()!, uri);
+        const file = this.controller.createTestItem(uniqueUri, uri.path.split('/').pop()!, uri);
         this.controller.items.add(file);
         testItemTypes.set(file, ItemType.testFile);
 
@@ -110,23 +112,25 @@ export class Utils {
     }
 
     public async updateFromDocument(doc: vscode.TextDocument) {
-        if (doc.uri.scheme === 'file' && doc.uri.path.endsWith('.cpp')) { // TODO: support .cc?
-            const lowerCaseUri = vscode.Uri.file(doc.uri.fsPath.toLowerCase()); // workaround, bazel query yields lowercase src paths
-            this.updateFromDisk(this.getOrCreateFile(lowerCaseUri));
+        if (doc.uri.scheme === 'file' && Utils.isCppTestFile(doc.uri)) {
+            const fileUri = vscode.Uri.file(doc.uri.fsPath);
+            this.updateFromDisk(this.getOrCreateFile(fileUri));
         }
     }
 
     public async updateFromDisk(item: vscode.TestItem) {
         try {
-            const content = await getContentFromFilesystem(item.uri!);
-            item.error = undefined;
-            this.updateFromContents(content, item.uri!, item);
+            if (Utils.isCppTestFile(item.uri)) {
+                const content = await getContentFromFilesystem(item.uri!);
+                item.error = undefined;
+                this.updateFromContents(content, item);
+            }
         } catch (e) {
             item.error = (e as Error).stack;
         }
     }
 
-    public updateFromContents(content: string, file: vscode.Uri, item: vscode.TestItem) {
+    private updateFromContents(content: string, item: vscode.TestItem) {
         const ancestors = [{ item, children: [] as vscode.TestItem[] }];
 
         const ascend = (depth: number) => {
