@@ -29,8 +29,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		return;
 	}
 
-	// for now, simply take the first match
-	const bazelWorkspaceDir = path.dirname(foundWorkspaceFiles[0]);
+	// take the first match as default and prompt for selection in case of multiple matches
+	let bazelWorkspaceDir = foundWorkspaceFiles[0];
+	if (foundWorkspaceFiles.length > 1) {
+		bazelWorkspaceDir = await vscode.window.showQuickPick(foundWorkspaceFiles, {
+			placeHolder: 'Choose bazel workspace...',
+			ignoreFocusOut: true,
+		});
+	}
+	bazelWorkspaceDir = path.dirname(bazelWorkspaceDir);
 
 	logger.info("Retrieving configuration.");
 	const config = vscode.workspace.getConfiguration(bazelTools);
