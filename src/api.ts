@@ -2,7 +2,7 @@ import { runCommand } from './commands';
 import * as fs from 'fs';
 import * as path from 'path';
 import { logger } from './logging';
-import { replacePattern } from './file_manipulation';
+import { replacePattern, replacePatternViaStream } from './file_manipulation';
 import { glob } from 'glob';
 import * as fse from 'fs-extra';
 
@@ -57,7 +57,7 @@ export async function generateCompileCommands(directory: string, customCompileCo
             }
         });
 
-        await replacePattern("bazel-out", `${symlinkPrefix}out`, compileCommandsFile).then(() => {
+        await replacePatternViaStream("bazel-out", `${symlinkPrefix}out`, compileCommandsFile).then(() => {
             logger.info(`Replaced 'bazel-out' in compile_commands.json with '${symlinkPrefix}out'`);
         });
     } else {
@@ -66,14 +66,14 @@ export async function generateCompileCommands(directory: string, customCompileCo
     }
 
     // move "external" symlink out of WORKSPACE
-    ["\"", "I"].forEach(async prefix => {
-        await replacePattern(`${prefix}external`, `${prefix}../external`, compileCommandsFile).then(() => {
+    for (let prefix of ["\"", "I"]) {
+        await replacePatternViaStream(`${prefix}external`, `${prefix}../external`, compileCommandsFile).then(() => {
             logger.info(`Replaced '${prefix}external' in compile_commands.json with '${prefix}../external'`);
         });
-    });
+    }
 
     // clangd workaround, "-isystem" included headers are not properly detected by the language server
-    await replacePattern("-isystem", "-I", compileCommandsFile).then(() => {
+    await replacePatternViaStream("-isystem", "-I", compileCommandsFile).then(() => {
         logger.info(`Replaced '-isystem' in compile_commands.json with '-I'`);
     });
 
