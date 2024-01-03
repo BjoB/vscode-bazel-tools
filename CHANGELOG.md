@@ -62,3 +62,14 @@ Explicitly assume that a cc_test label name matches the main cpp test file to ov
 ### Fixed
 
 clangd seems to have problems to resolve "isystem" added includes placed in the compile commands file, when using gcc to compile. A replacement with normal includes works.
+
+## [0.6.3] 2024-01-03
+
+### Fixed
+
+- Harmonized test file paths to avoid duplicate entries in Test Explorer UI
+- Switched to stream handling for file manipulation to prevent errors in case of large compile_commands.json files
+
+### Added
+
+- Add a QuickPick popup to support workspace selection on startup
