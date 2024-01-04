@@ -82,14 +82,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			bazelTestCtrl.resolveHandler = async test => {
 				if (!test) {
-					await utils.discoverAllTestsInWorkspace();
+					await utils.discoverAllTestsInWorkspace(bazelWorkspaceDir);
 				} else {
 					await utils.updateFromDisk(test);
 				}
 			};
 
 			bazelTestCtrl.refreshHandler = async () => {
-				await utils.discoverAllTestsInWorkspace();
+				await utils.discoverAllTestsInWorkspace(bazelWorkspaceDir);
 			};
 
 			// When text documents are open, parse tests in them.

@@ -73,3 +73,9 @@ clangd seems to have problems to resolve "isystem" added includes placed in the 
 ### Added
 
 - Add a QuickPick popup to support workspace selection on startup
+
+## [0.6.4] 2024-01-04
+
+### Fixed
+
+- Use only selected workspace for test discovery

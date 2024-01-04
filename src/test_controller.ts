@@ -40,60 +40,57 @@ export class Utils {
         return file.path.endsWith('.cpp') || file.path.endsWith('.cc');
     }
 
-    public async discoverAllTestsInWorkspace() {
-        if (!vscode.workspace.workspaceFolders) {
-            return []; // handle the case of no open folders
+    public async discoverAllTestsInWorkspace(bazelWorkspaceDir: string) {
+        this.workspaceDirPath = bazelWorkspaceDir;
+
+        await glob("**/WORKSPACE*", { nodir: true, absolute: true, cwd: this.workspaceDirPath }).then((workspaceFiles) => {
+            this.workspaceDirPath = path.dirname(workspaceFiles[0]);
+            logger.info(`WORKSPACE file found in: ${this.workspaceDirPath}`);
+        }).catch(() => {
+            logger.error(`No WORKSPACE file found in ${this.workspaceDirPath}`);
+        });
+
+        const bazelTestTargetsQuery = await runCommand("bazel", ["query", `kind(\"cc_test\", ${this.testDiscoverLabel})`], this.workspaceDirPath);
+
+        if (bazelTestTargetsQuery.error) {
+            throw new Error(`bazel query failed:\n ${bazelTestTargetsQuery.error.message}`);
         }
 
-        return Promise.all(
-            vscode.workspace.workspaceFolders.map(async workspaceFolder => {
-                this.workspaceDirPath = workspaceFolder.uri.fsPath;
+        const bazelTestTargets = bazelTestTargetsQuery.stdout;
 
-                await glob("**/WORKSPACE*", { nodir: true, absolute: true, cwd: this.workspaceDirPath }).then((workspaceFiles) => {
-                    this.workspaceDirPath = path.dirname(workspaceFiles[0]);
-                    logger.info(`WORKSPACE file found in: ${this.workspaceDirPath}`);
-                }).catch(() => {
-                    logger.error(`No WORKSPACE file found in ${this.workspaceDirPath}`);
-                });
-
-                const bazelTestTargetsQuery = await runCommand("bazel", ["query", `kind(\"cc_test\", ${this.testDiscoverLabel})`], this.workspaceDirPath);
-
-                if (bazelTestTargetsQuery.error) {
-                    throw new Error(`bazel query failed:\n ${bazelTestTargetsQuery.error.message}`);
+        for (const testTarget of bazelTestTargets) {
+            const bazelSrcsQuery = await runCommand("bazel", ["query", `labels(srcs, ${testTarget})`, "--output=location"], this.workspaceDirPath);
+            if (bazelSrcsQuery.error) {
+                throw new Error(`bazel query failed:\n ${bazelSrcsQuery.error.message}`);
+            }
+            for (const bazelSrc of bazelSrcsQuery.stdout) {
+                const srcMatch = bazelSrc.match(/^(.*):1:1:.*/);
+                if (!srcMatch) { // not a src file
+                    continue;
                 }
-
-                const bazelTestTargets = bazelTestTargetsQuery.stdout;
-
-                for (const testTarget of bazelTestTargets) {
-                    const bazelSrcsQuery = await runCommand("bazel", ["query", `labels(srcs, ${testTarget})`, "--output=location"], this.workspaceDirPath);
-                    if (bazelSrcsQuery.error) {
-                        throw new Error(`bazel query failed:\n ${bazelSrcsQuery.error.message}`);
-                    }
-                    for (const bazelSrc of bazelSrcsQuery.stdout) {
-                        const srcFileUri = vscode.Uri.file(bazelSrc.match(/^(.*):1:1:.*/)[1]);
-                        if (!Utils.isCppTestFile(srcFileUri)) {
-                            continue;
-                        }
-                        const testItem = this.getOrCreateFile(srcFileUri);
-                        bazelTestLabels.set(testItem, testTarget);
-                        await this.updateFromDisk(testItem);
-                    }
+                const srcFileUri = vscode.Uri.file(srcMatch[1]);
+                if (!Utils.isCppTestFile(srcFileUri)) {
+                    continue;
                 }
+                const testItem = this.getOrCreateFile(srcFileUri);
+                bazelTestLabels.set(testItem, testTarget);
+                await this.updateFromDisk(testItem);
+            }
+        }
 
-                // const pattern = new vscode.RelativePattern(workspaceFolder, '**/*.cpp');
-                // const watcher = vscode.workspace.createFileSystemWatcher(pattern);
+        // const pattern = new vscode.RelativePattern(workspaceFolder, '**/*.cpp');
+        // const watcher = vscode.workspace.createFileSystemWatcher(pattern);
 
-                // // When files are created, make sure there's a corresponding "file" node in the tree
-                // watcher.onDidCreate(uri => this.getOrCreateFile(uri));
-                // watcher.onDidChange(uri => this.parseTestsInFileContents(this.getOrCreateFile(uri)));
-                // watcher.onDidDelete(uri => this.controller.items.delete(uri.toString()));
+        // // When files are created, make sure there's a corresponding "file" node in the tree
+        // watcher.onDidCreate(uri => this.getOrCreateFile(uri));
+        // watcher.onDidChange(uri => this.parseTestsInFileContents(this.getOrCreateFile(uri)));
+        // watcher.onDidDelete(uri => this.controller.items.delete(uri.toString()));
 
-                // for (const file of await vscode.workspace.findFiles(pattern)) {
-                //     this.getOrCreateFile(file);
-                // }
-                // return watcher;
-            })
-        );
+        // for (const file of await vscode.workspace.findFiles(pattern)) {
+        //     this.getOrCreateFile(file);
+        // }
+        // return watcher;
+
     }
 
     getOrCreateFile(uri: vscode.Uri) {
