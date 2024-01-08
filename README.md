@@ -40,3 +40,4 @@ Depending on the size of your C++ project, the test discovery process might take
 * `vsc-bazel-tools.customCompileCommandsTarget`: Specifies a custom bazel target (label) to generate the compile commands.
 * `vsc-bazel-tools.activateTesting`: Discover and publish tests via test explorer UI.
 * `vsc-bazel-tools.testDiscoverLabel`: Bazel label for test discovery (e.g. `//my/package/...`).
+* `vsc-bazel-tools.bazelWorkspaceDir`: The bazel workspace directory to work with. Optional setting in case of multiple valid `WORKSPACE` files.

@@ -79,3 +79,9 @@ clangd seems to have problems to resolve "isystem" added includes placed in the 
 ### Fixed
 
 - Use only selected workspace for test discovery
+
+## [0.6.5] 2024-01-08
+
+### Added
+
+- Provide additional setting to specify bazel workspace file

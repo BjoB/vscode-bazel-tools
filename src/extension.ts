@@ -12,6 +12,7 @@ let bazelTestCtrl: vscode.TestController | undefined;
 const bazelTools = "vsc-bazel-tools";
 const activeTestingSettingName = "activateTesting";
 const testDiscoverLabelSettingName = "testDiscoverLabel";
+const workspaceDirSettingName = "bazelWorkspaceDir";
 const activeTestingSettingDefault = true;
 let testingActivated = false;
 
@@ -29,18 +30,23 @@ export async function activate(context: vscode.ExtensionContext) {
 		return;
 	}
 
-	// take the first match as default and prompt for selection in case of multiple matches
-	let bazelWorkspaceDir = foundWorkspaceFiles[0];
-	if (foundWorkspaceFiles.length > 1) {
-		bazelWorkspaceDir = await vscode.window.showQuickPick(foundWorkspaceFiles, {
-			placeHolder: 'Choose bazel workspace...',
-			ignoreFocusOut: true,
-		});
-	}
-	bazelWorkspaceDir = path.dirname(bazelWorkspaceDir);
-
 	logger.info("Retrieving configuration.");
 	const config = vscode.workspace.getConfiguration(bazelTools);
+
+	// Use setting or take the first match as default and prompt for selection in case of multiple matches
+	let bazelWorkspaceDir = foundWorkspaceFiles[0];
+	const workSpaceDirFromConfig = config.get<string>(workspaceDirSettingName);
+	if (workSpaceDirFromConfig) {
+		bazelWorkspaceDir = vscode.Uri.file(workSpaceDirFromConfig).fsPath;
+	} else {
+		if (foundWorkspaceFiles.length > 1) {
+			bazelWorkspaceDir = await vscode.window.showQuickPick(foundWorkspaceFiles, {
+				placeHolder: 'Choose bazel workspace file ...',
+				ignoreFocusOut: true,
+			});
+		}
+		bazelWorkspaceDir = path.dirname(bazelWorkspaceDir);
+	}
 
 	compileCommandsGenerator = vscode.commands.registerCommand('vsc-bazel-tools.generateCompileCommands', async () => {
 		vscode.window.withProgress({
