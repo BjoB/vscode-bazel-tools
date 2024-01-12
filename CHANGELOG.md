@@ -85,3 +85,9 @@ clangd seems to have problems to resolve "isystem" added includes placed in the 
 ### Added
 
 - Provide additional setting to specify bazel workspace file
+
+## [0.6.6] 2024-01-11
+
+### Fixed
+
+- Handle test definition across multiple lines properly
