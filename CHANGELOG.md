@@ -91,3 +91,10 @@ clangd seems to have problems to resolve "isystem" added includes placed in the 
 ### Fixed
 
 - Handle test definition across multiple lines properly
+
+## [0.6.7] 2024-02-06
+
+### Fixed
+
+- Fix freeze of compile commands generation in case of non-existing compile_commands.json file
+- Prevent extension startup error in case of user cancelation of workspace selection
