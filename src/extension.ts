@@ -44,6 +44,9 @@ export async function activate(context: vscode.ExtensionContext) {
 				placeHolder: 'Choose bazel workspace file ...',
 				ignoreFocusOut: true,
 			});
+			if (bazelWorkspaceDir === undefined) { // in case of user cancelation, e.g. via esc
+				bazelWorkspaceDir = foundWorkspaceFiles[0];
+			}
 		}
 		bazelWorkspaceDir = path.dirname(bazelWorkspaceDir);
 	}
