@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import * as util from 'util';
 import { logger } from './logging';
+import * as fse from 'fs-extra';
 
 // Resolves as [oldDatam modifiedData].
 export async function replacePattern(pattern: string, replaceValue: string, file: fs.PathLike): Promise<[string, string]> {
@@ -23,6 +23,9 @@ export async function replacePatternViaStream(pattern: string, replaceValue: str
     return new Promise<void>((resolve, reject) => {
         const regexPattern = new RegExp(pattern, 'g');
         try {
+            if (!fse.existsSync(file)) {
+                reject(new Error(`File ${file} not found!`));
+            }
             const tempFile = file + ".temp";
             const inputStream = fs.createReadStream(file, { encoding: 'utf8', highWaterMark: 16777216 });
             const outputStream = fs.createWriteStream(tempFile, { encoding: 'utf8', highWaterMark: 16777216 });
